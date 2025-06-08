@@ -1,0 +1,15 @@
+# 環境変数ファイル
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*.local
+
+# その他よく除外するファイル
+node_modules/
+dist/
+build/
+*.log
+.DS_Store
+Thumbs.db
