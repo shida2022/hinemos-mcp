@@ -1,0 +1,164 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hinemos-mcp-server"
+version = "0.1.0"
+description = "Model Context Protocol server for Hinemos integration"
+authors = [{name = "Takahiro Shida", email = "shida@intellilink.co.jp"}]
+dependencies = [
+    "mcp>=1.0.0",
+    "aiohttp>=3.8.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0"
+]
+requires-python = ">=3.10"
+
+[project.scripts]
+hinemos-mcp-server = "hinemos_mcp_server:main"
+
+---
+
+# requirements.txt
+mcp>=1.0.0
+aiohttp>=3.8.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+
+---
+
+# .env (環境変数設定例)
+HINEMOS_BASE_URL=http://your-hinemos-server:8080/HinemosWS/
+HINEMOS_USERNAME=hinemos_user
+HINEMOS_PASSWORD=your_secure_password
+HINEMOS_TIMEOUT=30
+
+# ログレベル
+LOG_LEVEL=INFO
+
+---
+
+# config.yaml (設定ファイル例)
+hinemos:
+  base_url: "${HINEMOS_BASE_URL}"
+  username: "${HINEMOS_USERNAME}" 
+  password: "${HINEMOS_PASSWORD}"
+  timeout: 30
+  
+  # APIエンドポイント設定
+  endpoints:
+    monitor: "MonitorEndpoint"
+    job: "JobEndpoint"
+    repository: "RepositoryEndpoint"
+  
+  # 名前空間設定
+  namespaces:
+    soap: "http://schemas.xmlsoap.org/soap/envelope/"
+    hinemos: "http://hinemos.ntt-data.co.jp"
+
+mcp:
+  server_name: "Hinemos Integration Server"
+  description: "MCP server for Hinemos monitoring system integration"
+  version: "0.1.0"
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+---
+
+# docker-compose.yml (Dockerデプロイ用)
+version: '3.8'
+
+services:
+  hinemos-mcp-server:
+    build: .
+    environment:
+      - HINEMOS_BASE_URL=${HINEMOS_BASE_URL}
+      - HINEMOS_USERNAME=${HINEMOS_USERNAME}
+      - HINEMOS_PASSWORD=${HINEMOS_PASSWORD}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./config:/app/config:ro
+    networks:
+      - hinemos-network
+    restart: unless-stopped
+
+networks:
+  hinemos-network:
+    external: true
+
+---
+
+# Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 依存関係をインストール
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# アプリケーションコードをコピー
+COPY . .
+
+# 非rootユーザーで実行
+RUN useradd -m -u 1000 mcpuser && chown -R mcpuser:mcpuser /app
+USER mcpuser
+
+# エントリーポイント
+CMD ["python", "-m", "hinemos_mcp_server"]
+
+---
+
+# claude_desktop_config.json (Claude Desktop統合用)
+{
+  "mcpServers": {
+    "hinemos": {
+      "command": "python",
+      "args": ["/path/to/hinemos_mcp_server.py"],
+      "env": {
+        "HINEMOS_BASE_URL": "http://your-hinemos-server:8080/HinemosWS/",
+        "HINEMOS_USERNAME": "hinemos_user",
+        "HINEMOS_PASSWORD": "your_password"
+      }
+    }
+  }
+}
+
+---
+
+# install.sh (インストールスクリプト)
+#!/bin/bash
+
+echo "Installing Hinemos MCP Server..."
+
+# Python環境確認
+if ! command -v python3 &> /dev/null; then
+    echo "Python 3.10+ is required but not installed."
+    exit 1
+fi
+
+# 仮想環境作成
+python3 -m venv venv
+source venv/bin/activate
+
+# 依存関係インストール
+pip install -r requirements.txt
+
+# 設定ファイル作成
+if [ ! -f .env ]; then
+    echo "Creating .env file..."
+    cat > .env << EOF
+HINEMOS_BASE_URL=http://localhost:8080/HinemosWS/
+HINEMOS_USERNAME=hinemos
+HINEMOS_PASSWORD=hinemos123
+LOG_LEVEL=INFO
+EOF
+    echo "Please edit .env file with your Hinemos server details."
+fi
+
+echo "Installation complete!"
+echo "To run the server: source venv/bin/activate && python hinemos_mcp_server.py"
