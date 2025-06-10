@@ -340,126 +340,266 @@ class HinemosClient:
         """
         return self._make_request('GET', 'RepositoryRestEndpoints/repository/subPlatform')
     
-    def add_http_monitor(self, monitor_id: str, monitor_name: str, facility_id: str, 
-                        url: str, interval: int = 300, timeout: int = 10000,
-                        owner_role_id: str = "ADMINISTRATORS") -> Dict[str, Any]:
+    # --- MonitorsettingRestEndpoints対応 Hinemos REST APIクライアントメソッド ---
+
+    def get_monitor_list(self) -> Dict[str, Any]:
         """
-        Add HTTP monitor setting
-        
-        Args:
-            monitor_id: Unique monitor ID
-            monitor_name: Display name for monitor
-            facility_id: Target facility ID
-            url: URL to monitor
-            interval: Check interval in seconds (default: 300)
-            timeout: Timeout in milliseconds (default: 10000)
-            owner_role_id: Owner role ID (default: "ADMINISTRATORS")
-            
+        監視設定一覧の取得API (/monitorsetting/monitor)
         Returns:
-            Response data
+            監視設定一覧
         """
-        data = {
-            "monitorId": monitor_id,
-            "monitorName": monitor_name,
-            "facilityId": facility_id,
-            "url": url,
-            "interval": interval,
-            "timeout": timeout,
-            "ownerRoleId": owner_role_id
-        }
-        
-        return self._make_request('POST', 'MonitorRestEndpoints/monitor/http', json=data)
-    
-    def add_ping_monitor(self, monitor_id: str, monitor_name: str, facility_id: str,
-                        interval: int = 300, timeout: int = 5000, run_count: int = 3,
-                        owner_role_id: str = "ADMINISTRATORS") -> Dict[str, Any]:
+        return self._make_request('GET', 'MonitorsettingRestEndpoints/monitorsetting/monitor')
+
+    def get_monitor(self, monitor_id: str) -> Dict[str, Any]:
         """
-        Add Ping monitor setting
-        
+        監視設定の取得API (/monitorsetting/monitor/{monitorId})
         Args:
-            monitor_id: Unique monitor ID
-            monitor_name: Display name for monitor
-            facility_id: Target facility ID
-            interval: Check interval in seconds (default: 300)
-            timeout: Timeout in milliseconds (default: 5000)
-            run_count: Number of ping attempts (default: 3)
-            owner_role_id: Owner role ID (default: "ADMINISTRATORS")
-            
+            monitor_id: 監視設定ID
         Returns:
-            Response data
+            監視設定情報
         """
-        data = {
-            "monitorId": monitor_id,
-            "monitorName": monitor_name,
-            "facilityId": facility_id,
-            "interval": interval,
-            "timeout": timeout,
-            "runCount": run_count,
-            "ownerRoleId": owner_role_id
-        }
-        
-        return self._make_request('POST', 'MonitorRestEndpoints/monitor/ping', json=data)
-    
-    def get_monitor_list(self, owner_role_id: Optional[str] = None) -> Dict[str, Any]:
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/monitor/{monitor_id}"
+        return self._make_request('GET', endpoint)
+
+    def add_http_monitor(self, monitor_info: dict) -> Dict[str, Any]:
         """
-        Get monitor settings list
-        
+        HTTP監視（数値）設定の追加API (/monitorsetting/httpNumeric)
         Args:
-            owner_role_id: Optional owner role ID filter
-            
+            monitor_info: 監視設定情報(dict)
         Returns:
-            Monitor list data
+            追加結果
         """
-        params = {}
-        if owner_role_id:
-            params['ownerRoleId'] = owner_role_id
-        
-        return self._make_request('GET', 'MonitorRestEndpoints/monitor', params=params)
-    
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/httpNumeric', json=monitor_info)
+
+    def add_ping_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        PING監視設定の追加API (/monitorsetting/ping)
+        Args:
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/ping', json=monitor_info)
+
+    def add_agent_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        エージェント監視設定の追加API (/monitorsetting/agent)
+        Args:
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/agent', json=monitor_info)
+
+    def add_jmx_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        JMX監視設定の追加API (/monitorsetting/jmx)
+        Args:
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/jmx', json=monitor_info)
+
+    def add_snmp_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        SNMP監視設定の追加API (/monitorsetting/snmp)
+        Args:
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/snmp', json=monitor_info)
+
+    def add_sql_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        SQL監視設定の追加API (/monitorsetting/sql)
+        Args:
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/sql', json=monitor_info)
+
+    def add_logfile_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        ログファイル監視設定の追加API (/monitorsetting/logfile)
+        Args:
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/logfile', json=monitor_info)
+
+    def add_command_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        コマンド監視設定の追加API (/monitorsetting/command)
+        Args:
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/command', json=monitor_info)
+
+    def add_custom_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        カスタム監視設定の追加API (/monitorsetting/custom)
+        Args:
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/custom', json=monitor_info)
+
+    def modify_http_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        HTTP監視（数値）設定の更新API (/monitorsetting/httpNumeric/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/httpNumeric/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def modify_ping_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        PING監視設定の更新API (/monitorsetting/ping/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/ping/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def modify_agent_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        エージェント監視設定の更新API (/monitorsetting/agent/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/agent/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def modify_jmx_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        JMX監視設定の更新API (/monitorsetting/jmx/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/jmx/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def modify_snmp_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        SNMP監視設定の更新API (/monitorsetting/snmp/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/snmp/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def modify_sql_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        SQL監視設定の更新API (/monitorsetting/sql/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/sql/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def modify_logfile_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        ログファイル監視設定の更新API (/monitorsetting/logfile/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/logfile/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def modify_command_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        コマンド監視設定の更新API (/monitorsetting/command/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/command/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def modify_custom_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        カスタム監視設定の更新API (/monitorsetting/custom/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: 監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/custom/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
     def delete_monitor(self, monitor_ids: list) -> Dict[str, Any]:
         """
-        Delete monitor settings
-        
+        監視設定の削除API (/monitorsetting/monitor)
         Args:
-            monitor_ids: List of monitor IDs to delete
-            
+            monitor_ids: 削除する監視設定IDリスト
         Returns:
-            Response data
+            削除結果
         """
-        data = {"monitorIds": monitor_ids}
-        return self._make_request('DELETE', 'MonitorRestEndpoints/monitor', json=data)
-    
-    def get_event_list(self, limit: int = 100, start_date: Optional[str] = None,
-                      end_date: Optional[str] = None, facility_id: Optional[str] = None,
-                      priority: Optional[int] = None, owner_role_id: Optional[str] = None) -> Dict[str, Any]:
+        params = {"monitorIds": ",".join(monitor_ids)}
+        return self._make_request('DELETE', 'MonitorsettingRestEndpoints/monitorsetting/monitor', params=params)
+
+    def get_monitor_info_for_graph(self, monitor_id: str) -> Dict[str, Any]:
         """
-        Get event list
-        
+        性能グラフ表示への対象である監視設定の取得API (/monitorsetting/monitor_graphInfo_forCollect/{monitorId})
         Args:
-            limit: Maximum number of events to retrieve (default: 100)
-            start_date: Start date filter (YYYY-MM-DD format)
-            end_date: End date filter (YYYY-MM-DD format)
-            facility_id: Facility ID filter
-            priority: Priority filter
-            owner_role_id: Owner role ID filter
-            
+            monitor_id: 監視設定ID
         Returns:
-            Event list data
+            監視設定情報
         """
-        params = {"limit": limit}
-        
-        if start_date:
-            params['startDate'] = start_date
-        if end_date:
-            params['endDate'] = end_date
-        if facility_id:
-            params['facilityId'] = facility_id
-        if priority is not None:
-            params['priority'] = priority
-        if owner_role_id:
-            params['ownerRoleId'] = owner_role_id
-        
-        return self._make_request('GET', 'EventRestEndpoints/event', params=params)
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/monitor_graphInfo_forCollect/{monitor_id}"
+        return self._make_request('GET', endpoint)
+
+    def set_status_monitor(self, status_info: dict) -> Dict[str, Any]:
+        """
+        監視設定の監視有効／無効の切り替えAPI (/monitorsetting/monitor_monitorValid)
+        Args:
+            status_info: ステータス情報(dict)
+        Returns:
+            結果
+        """
+        return self._make_request('PUT', 'MonitorsettingRestEndpoints/monitorsetting/monitor_monitorValid', json=status_info)
+
+    def set_status_collector(self, status_info: dict) -> Dict[str, Any]:
+        """
+        監視設定の収集有効／無効の切り替えAPI (/monitorsetting/monitor_collectorValid)
+        Args:
+            status_info: ステータス情報(dict)
+        Returns:
+            結果
+        """
+        return self._make_request('PUT', 'MonitorsettingRestEndpoints/monitorsetting/monitor_collectorValid', json=status_info)
     
     def logout(self) -> None:
         """
@@ -483,6 +623,286 @@ class HinemosClient:
         """Context manager exit - logout automatically"""
         self.logout()
 
+
+    # --- CalendarRestEndpoints対応 Hinemos REST APIクライアントメソッド ---
+
+    def get_calendar_list(self, owner_role_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        カレンダー一覧取得API (/calendar/calendar)
+        Args:
+            owner_role_id: オーナーロールID (任意)
+        Returns:
+            カレンダー一覧
+        """
+        params = {}
+        if owner_role_id:
+            params["ownerRoleId"] = owner_role_id
+        return self._make_request('GET', 'CalendarRestEndpoints/calendar/calendar', params=params)
+
+    def get_calendar(self, calendar_id: str) -> Dict[str, Any]:
+        """
+        カレンダー情報取得API (/calendar/calendar/{calendarId})
+        Args:
+            calendar_id: カレンダーID
+        Returns:
+            カレンダー情報
+        """
+        endpoint = f"CalendarRestEndpoints/calendar/calendar/{calendar_id}"
+        return self._make_request('GET', endpoint)
+
+    def add_calendar(self, calendar_info: dict) -> Dict[str, Any]:
+        """
+        カレンダー追加API (/calendar/calendar)
+        Args:
+            calendar_info: カレンダー情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'CalendarRestEndpoints/calendar/calendar', json=calendar_info)
+
+    def modify_calendar(self, calendar_id: str, calendar_info: dict) -> Dict[str, Any]:
+        """
+        カレンダー更新API (/calendar/calendar/{calendarId})
+        Args:
+            calendar_id: カレンダーID
+            calendar_info: カレンダー情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"CalendarRestEndpoints/calendar/calendar/{calendar_id}"
+        return self._make_request('PUT', endpoint, json=calendar_info)
+
+    def delete_calendar(self, calendar_ids: list) -> Dict[str, Any]:
+        """
+        カレンダー削除API (/calendar/calendar)
+        Args:
+            calendar_ids: 削除するカレンダーIDリスト
+        Returns:
+            削除結果
+        """
+        params = {"calendarIds": ",".join(calendar_ids)}
+        return self._make_request('DELETE', 'CalendarRestEndpoints/calendar/calendar', params=params)
+
+    def get_calendar_month(self, calendar_id: str, year: int, month: int) -> Dict[str, Any]:
+        """
+        カレンダー月別稼働状態取得API (/calendar/calendar/{calendarId}/calendarDetail_monthOperationState)
+        Args:
+            calendar_id: カレンダーID
+            year: 年 (int)
+            month: 月 (int)
+        Returns:
+            月別稼働状態リスト
+        """
+        endpoint = f"CalendarRestEndpoints/calendar/calendar/{calendar_id}/calendarDetail_monthOperationState"
+        params = {"year": str(year), "month": str(month)}
+        return self._make_request('GET', endpoint, params=params)
+
+    def get_calendar_week(self, calendar_id: str, year: int, month: int, day: int) -> Dict[str, Any]:
+        """
+        カレンダー週情報取得API (/calendar/calendar/{calendarId}/calendarDetail_week)
+        Args:
+            calendar_id: カレンダーID
+            year: 年 (int)
+            month: 月 (int)
+            day: 日 (int)
+        Returns:
+            週情報リスト
+        """
+        endpoint = f"CalendarRestEndpoints/calendar/calendar/{calendar_id}/calendarDetail_week"
+        params = {"year": str(year), "month": str(month), "day": str(day)}
+        return self._make_request('GET', endpoint, params=params)
+
+    def get_calendar_pattern_list(self, owner_role_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        カレンダパターン一覧取得API (/calendar/pattern)
+        Args:
+            owner_role_id: オーナーロールID (任意)
+        Returns:
+            カレンダパターン一覧
+        """
+        params = {}
+        if owner_role_id:
+            params["ownerRoleId"] = owner_role_id
+        return self._make_request('GET', 'CalendarRestEndpoints/calendar/pattern', params=params)
+
+    def get_calendar_pattern(self, calendar_pattern_id: str) -> Dict[str, Any]:
+        """
+        カレンダパターン情報取得API (/calendar/pattern/{calendarPatternId})
+        Args:
+            calendar_pattern_id: カレンダパターンID
+        Returns:
+            カレンダパターン情報
+        """
+        endpoint = f"CalendarRestEndpoints/calendar/pattern/{calendar_pattern_id}"
+        return self._make_request('GET', endpoint)
+
+    def add_calendar_pattern(self, pattern_info: dict) -> Dict[str, Any]:
+        """
+        カレンダパターン追加API (/calendar/pattern)
+        Args:
+            pattern_info: カレンダパターン情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'CalendarRestEndpoints/calendar/pattern', json=pattern_info)
+
+    def modify_calendar_pattern(self, calendar_pattern_id: str, pattern_info: dict) -> Dict[str, Any]:
+        """
+        カレンダパターン更新API (/calendar/pattern/{calendarPatternId})
+        Args:
+            calendar_pattern_id: カレンダパターンID
+            pattern_info: カレンダパターン情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"CalendarRestEndpoints/calendar/pattern/{calendar_pattern_id}"
+        return self._make_request('PUT', endpoint, json=pattern_info)
+
+    def delete_calendar_pattern(self, calendar_pattern_ids: list) -> Dict[str, Any]:
+        """
+        カレンダパターン削除API (/calendar/pattern)
+        Args:
+            calendar_pattern_ids: 削除するカレンダパターンIDリスト
+        Returns:
+            削除結果
+        """
+        params = {"calendarPatternIds": ",".join(calendar_pattern_ids)}
+        return self._make_request('DELETE', 'CalendarRestEndpoints/calendar/pattern', params=params)
+
+    # --- CollectRestEndpoints対応 Hinemos REST APIクライアントメソッド ---
+
+    def get_collect_id(self, monitor_id: str, item_name: str, display_name: str, facility_ids: list, size: Optional[int] = None) -> Dict[str, Any]:
+        """
+        収集IDリスト取得API (/collect/key/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            item_name: 収集項目コード
+            display_name: 表示名
+            facility_ids: ファシリティIDリスト
+            size: 取得件数（任意）
+        Returns:
+            収集IDリスト
+        """
+        params = {
+            "itemName": item_name,
+            "displayName": display_name,
+            "facilityIds": ",".join(facility_ids)
+        }
+        if size is not None:
+            params["size"] = str(size)
+        endpoint = f"CollectRestEndpoints/collect/key/{monitor_id}"
+        return self._make_request('GET', endpoint, params=params)
+
+    def get_collect_data(self, id_list: list, summary_type: str, from_time: str, to_time: str, size: Optional[int] = None) -> Dict[str, Any]:
+        """
+        収集データ取得API (/collect/data)
+        Args:
+            id_list: 収集IDリスト
+            summary_type: サマリタイプ
+            from_time: 取得開始日時 (yyyy-MM-dd HH:mm:ss)
+            to_time: 取得終了日時 (yyyy-MM-dd HH:mm:ss)
+            size: 取得件数（任意）
+        Returns:
+            収集データリスト
+        """
+        params = {
+            "idList": ",".join(str(i) for i in id_list),
+            "summaryType": summary_type,
+            "fromTime": from_time,
+            "toTime": to_time
+        }
+        if size is not None:
+            params["size"] = str(size)
+        return self._make_request('GET', 'CollectRestEndpoints/collect/data', params=params)
+
+    def get_item_code_list(self, facility_ids: list, size: Optional[int] = None) -> Dict[str, Any]:
+        """
+        収集項目コードリスト取得API (/collect/key)
+        Args:
+            facility_ids: ファシリティIDリスト
+            size: 取得件数（任意）
+        Returns:
+            収集項目コードリスト
+        """
+        params = {
+            "facilityIds": ",".join(facility_ids)
+        }
+        if size is not None:
+            params["size"] = str(size)
+        return self._make_request('GET', 'CollectRestEndpoints/collect/key', params=params)
+
+    def get_collect_item_code_master_list(self) -> Dict[str, Any]:
+        """
+        収集項目コードマスタ一覧取得API (/collect/itemCodeMst)
+        Returns:
+            収集項目コードマスタ一覧
+        """
+        return self._make_request('GET', 'CollectRestEndpoints/collect/itemCodeMst')
+
+    def get_collect_key_map_for_analytics(self, facility_id: str, owner_role_id: str) -> Dict[str, Any]:
+        """
+        収集値キーの一覧取得API (/collect/key_mapKeyItemName/{facilityId})
+        Args:
+            facility_id: ファシリティID
+            owner_role_id: オーナーロールID
+        Returns:
+            収集値キーの一覧
+        """
+        params = {"ownerRoleId": owner_role_id}
+        endpoint = f"CollectRestEndpoints/collect/key_mapKeyItemName/{facility_id}"
+        return self._make_request('GET', endpoint, params=params)
+
+    def get_available_collector_item_list(self, facility_id: str) -> Dict[str, Any]:
+        """
+        収集可能な項目のリスト取得API (/collect/itemCodeMst_availableItem)
+        Args:
+            facility_id: ファシリティID
+        Returns:
+            収集可能な項目リスト
+        """
+        params = {"facilityId": facility_id}
+        return self._make_request('GET', 'CollectRestEndpoints/collect/itemCodeMst_availableItem', params=params)
+
+    def get_collect_master_info(self) -> Dict[str, Any]:
+        """
+        収集マスタ情報一括取得API (/collect/master)
+        Returns:
+            収集マスタ情報
+        """
+        return self._make_request('GET', 'CollectRestEndpoints/collect/master')
+
+    def add_collect_setting(self, collect_info: dict) -> Dict[str, Any]:
+        """
+        収集設定追加API (/collect/setting)
+        Args:
+            collect_info: 収集設定情報(dict)
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'CollectRestEndpoints/collect/setting', json=collect_info)
+
+    def modify_collect_setting(self, collect_id: str, collect_info: dict) -> Dict[str, Any]:
+        """
+        収集設定更新API (/collect/setting/{collectId})
+        Args:
+            collect_id: 収集設定ID
+            collect_info: 収集設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"CollectRestEndpoints/collect/setting/{collect_id}"
+        return self._make_request('PUT', endpoint, json=collect_info)
+
+    def delete_collect_setting(self, collect_ids: list) -> Dict[str, Any]:
+        """
+        収集設定削除API (/collect/setting)
+        Args:
+            collect_ids: 削除する収集設定IDリスト
+        Returns:
+            削除結果
+        """
+        params = {"collectIds": ",".join(collect_ids)}
+        return self._make_request('DELETE', 'CollectRestEndpoints/collect/setting', params=params)
 
 # Usage example
 if __name__ == "__main__":
