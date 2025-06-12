@@ -14,7 +14,7 @@ import base64
 import json
 from typing import Any, Dict, List, Optional
 from datetime import datetime
-from hinemos_client import HinemosClient
+from client.hinemos_client import HinemosClient
 
 # Fix encoding for Windows Japanese environment
 if sys.platform == "win32":
@@ -23,6 +23,8 @@ if sys.platform == "win32":
 from mcp.server.models import InitializationOptions
 from mcp.server import NotificationOptions, Server
 from mcp.types import TextContent, Tool, ListToolsResult
+
+from mcp_tools import get_all_tools, dispatch_tool
 
 # Configure logging
 logging.basicConfig(
@@ -115,32 +117,32 @@ class HinemosSyncManager:
     async def get_calendar(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_calendar, **kwargs)
+        return await loop.run_in_executor(None, self.client.get_calendar, kwargs["calendar_id"])
 
     async def add_calendar(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.add_calendar, **kwargs)
+        return await loop.run_in_executor(None, self.client.add_calendar, kwargs['calendar_info'])
 
     async def modify_calendar(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.modify_calendar, **kwargs)
+        return await loop.run_in_executor(None, self.client.modify_calendar, kwargs["calendar_id"], kwargs["calendar_info"])
 
     async def delete_calendar(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.delete_calendar, **kwargs)
+        return await loop.run_in_executor(None, self.client.delete_calendar, kwargs["calendar_ids"])
 
     async def get_calendar_month(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_calendar_month, **kwargs)
+        return await loop.run_in_executor(None, self.client.get_calendar_month, kwargs["calendar_id"], kwargs["year"], kwargs["month"])
 
     async def get_calendar_week(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_calendar_week, **kwargs)
+        return await loop.run_in_executor(None, self.client.get_calendar_week, kwargs["calendar_id"], kwargs["year"], kwargs["month"], kwargs["day"])
 
     async def get_calendar_pattern_list(self, **kwargs) -> Dict[str, Any]:
         import asyncio
@@ -150,73 +152,319 @@ class HinemosSyncManager:
     async def get_calendar_pattern(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_calendar_pattern, **kwargs)
+        return await loop.run_in_executor(None, self.client.get_calendar_pattern, kwargs["calendar_pattern_id"])
 
     async def add_calendar_pattern(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.add_calendar_pattern, **kwargs)
+        return await loop.run_in_executor(None, self.client.add_calendar_pattern, kwargs['pattern_info'])
 
     async def modify_calendar_pattern(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.modify_calendar_pattern, **kwargs)
+        return await loop.run_in_executor(None, self.client.modify_calendar_pattern, kwargs["calendar_pattern_id"], kwargs["pattern_info"])
 
     async def delete_calendar_pattern(self, **kwargs) -> Dict[str, Any]:
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.delete_calendar_pattern, **kwargs)
+        return await loop.run_in_executor(None, self.client.delete_calendar_pattern, kwargs["calendar_pattern_ids"])
+
+    # --- 監視設定一覧・検索 ---
+    async def get_monitor_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_monitor_list)
+
+    async def get_monitor_list_by_condition(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.search_monitor_list, kwargs.get("monitor_filter_info"))
+
+    async def get_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_monitor, kwargs.get("monitor_id"))
+
+    async def delete_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_monitor, kwargs.get("monitor_ids"))
+
+    async def set_status_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.set_status_monitor, kwargs.get("monitor_ids"), kwargs.get("valid_flg"))
+
+    async def set_status_collector(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.set_status_collector, kwargs.get("monitor_ids"), kwargs.get("valid_flg"))
+
+    # --- HTTPシナリオ監視 ---
+    async def add_http_scenario_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_http_scenario_monitor, kwargs.get("monitor_info"))
+
+    async def modify_http_scenario_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_http_scenario_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_http_scenario_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_http_scenario_list, kwargs.get("monitor_id"))
+
+    # --- HTTP監視（数値） ---
+    async def add_http_numeric_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_http_numeric_monitor, kwargs.get("monitor_info"))
+
+    async def modify_http_numeric_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_http_numeric_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_http_numeric_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_http_numeric_list, kwargs.get("monitor_id"))
+
+    # --- HTTP監視（文字列） ---
+    async def add_http_string_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_http_string_monitor, kwargs.get("monitor_info"))
+
+    async def modify_http_string_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_http_string_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_http_string_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_http_string_list, kwargs.get("monitor_id"))
+
+    # --- エージェント監視 ---
+    async def add_agent_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_agent_monitor, kwargs.get("monitor_info"))
+
+    async def modify_agent_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_agent_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_agent_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_agent_list, kwargs.get("monitor_id"))
+
+    # --- JMX監視 ---
+    async def add_jmx_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_jmx_monitor, kwargs.get("monitor_info"))
+
+    async def modify_jmx_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_jmx_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_jmx_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_jmx_list, kwargs.get("monitor_id"))
+
+    async def get_jmx_url_format_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_jmx_url_format_list)
+
+    # --- PING監視 ---
+    async def add_ping_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_ping_monitor, kwargs.get("monitor_info"))
+
+    async def modify_ping_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_ping_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_ping_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_ping_list, kwargs.get("monitor_id"))
+
+    # --- カスタム監視（数値） ---
+    async def add_custom_numeric_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_custom_numeric_monitor, kwargs.get("monitor_info"))
+
+    async def modify_custom_numeric_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_custom_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_custom_numeric_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_custom_list, kwargs.get("monitor_id"))
+
+    # --- カスタム監視（文字列） ---
+    async def add_custom_string_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_custom_string_monitor, kwargs.get("monitor_info"))
+
+    async def modify_custom_string_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_custom_string_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_custom_string_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_custom_string_list, kwargs.get("monitor_id"))
     
-    async def get_collect_id(self, **kwargs) -> Dict[str, Any]:
+    # --- リソース監視 ---
+    async def add_performance_monitor(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_collect_id, **kwargs)
+        return await loop.run_in_executor(None, self.client.add_performance_monitor, kwargs.get("monitor_info"))
 
-    async def get_collect_data(self, **kwargs) -> Dict[str, Any]:
+    async def modify_performance_monitor(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_collect_data, **kwargs)
+        return await loop.run_in_executor(None, self.client.modify_performance_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
 
-    async def get_item_code_list(self, **kwargs) -> Dict[str, Any]:
+    async def get_performance_list(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_item_code_list, **kwargs)
+        return await loop.run_in_executor(None, self.client.get_performance_list, kwargs.get("monitor_id"))
 
-    async def get_collect_item_code_master_list(self, **kwargs) -> Dict[str, Any]:
+    # --- JMXマスタ管理 ---
+    async def get_jmx_master_list(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_collect_item_code_master_list, **kwargs)
+        return await loop.run_in_executor(None, self.client.get_jmx_master_list)
 
-    async def get_collect_key_map_for_analytics(self, **kwargs) -> Dict[str, Any]:
+    async def add_jmx_master_list(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_collect_key_map_for_analytics, **kwargs)
+        return await loop.run_in_executor(None, self.client.add_jmx_master_list, kwargs.get("jmx_master_list"))
 
-    async def get_available_collector_item_list(self, **kwargs) -> Dict[str, Any]:
+    async def delete_jmx_master(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_available_collector_item_list, **kwargs)
+        return await loop.run_in_executor(None, self.client.delete_jmx_master, kwargs.get("jmx_master_ids"))
 
-    async def get_collect_master_info(self, **kwargs) -> Dict[str, Any]:
+    async def delete_jmx_master_all(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.get_collect_master_info, **kwargs)
+        return await loop.run_in_executor(None, self.client.delete_jmx_master_all)
 
-    async def add_collect_setting(self, **kwargs) -> Dict[str, Any]:
+    # --- 補助API ---
+    async def get_jdbc_driver_list(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.add_collect_setting, **kwargs)
+        return await loop.run_in_executor(None, self.client.get_jdbc_driver_list)
 
-    async def modify_collect_setting(self, **kwargs) -> Dict[str, Any]:
+    async def get_binary_preset_list(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.modify_collect_setting, **kwargs)
+        return await loop.run_in_executor(None, self.client.get_binary_preset_list)
 
-    async def delete_collect_setting(self, **kwargs) -> Dict[str, Any]:
+    async def get_monitor_string_tag_list(self, **kwargs):
         import asyncio
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, self.client.delete_collect_setting, **kwargs)
-        
+        return await loop.run_in_executor(None, self.client.get_monitor_string_tag_list, kwargs.get("monitor_id"), kwargs.get("owner_role_id"))
+
+    # --- SNMP監視（数値/文字列） ---
+    async def add_snmp_numeric_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_snmp_numeric_monitor, kwargs.get("monitor_info"))
+
+    async def modify_snmp_numeric_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_snmp_numeric_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_snmp_numeric_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_snmp_numeric_list, kwargs.get("monitor_id"))
+
+    async def add_snmp_string_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_snmp_string_monitor, kwargs.get("monitor_info"))
+
+    async def modify_snmp_string_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_snmp_string_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_snmp_string_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_snmp_string_list, kwargs.get("monitor_id"))
+
+    # --- SQL監視 ---
+    async def add_sql_numeric_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_sql_numeric_monitor, kwargs.get("monitor_info"))
+
+    async def modify_sql_numeric_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_sql_numeric_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_sql_numeric_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_sql_numeric_list, kwargs.get("monitor_id"))
+
+    # --- ログファイル監視 ---
+    async def add_logfile_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_logfile_monitor, kwargs.get("monitor_info"))
+
+    async def modify_logfile_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_logfile_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_logfile_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_logfile_list, kwargs.get("monitor_id"))
+
+    # --- プロセス監視 ---
+    async def add_process_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_process_monitor, kwargs.get("monitor_info"))
+
+    async def modify_process_monitor(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_process_monitor, kwargs.get("monitor_id"), kwargs.get("monitor_info"))
+
+    async def get_process_list(self, **kwargs):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_process_list, kwargs.get("monitor_id"))
+
     async def close(self):
         self.client.logout()
 
@@ -228,767 +476,34 @@ server = Server("hinemos-mcp")
 
 @server.list_tools()
 async def handle_list_tools() -> ListToolsResult:
-    """List available Hinemos tools"""
+
     logger.info("LIST_TOOLS called - returning available tools")
     
-    try:
-        # First, let's try to understand what ListToolsResult expects
-        logger.info("Inspecting ListToolsResult...")
-        logger.info(f"ListToolsResult annotations: {getattr(ListToolsResult, '__annotations__', 'none')}")
-        
-        # Create tools for Hinemos 7.1 REST API
-        tools = [
-            Tool(
-                name="test_connection",
-                description="Hinemos 7.1サーバーへの接続をテスト（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {}
-                }
-            ),
-            Tool(
-                name="get_node_list",
-                description="Hinemos 7.1リポジトリからノードリストを取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "owner_role_id": {
-                            "type": "string", 
-                            "description": "オーナーロールIDフィルター（オプション）"
-                        }
-                    }
-                }
-            ),
-            Tool(
-                name="delete_node",
-                description="Hinemos 7.1リポジトリからノードを削除（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "facility_ids": {
-                            "type": "array", 
-                            "items": {"type": "string"}, 
-                            "description": "削除するファシリティIDのリスト"
-                        }
-                    },
-                    "required": ["facility_ids"]
-                }
-            ),
-            Tool(
-                name="add_http_monitor",
-                description="Hinemos 7.1にHTTP監視設定を追加（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "monitor_id": {
-                            "type": "string", 
-                            "description": "ユニークな監視ID"
-                        },
-                        "monitor_name": {
-                            "type": "string", 
-                            "description": "監視設定の表示名"
-                        },
-                        "facility_id": {
-                            "type": "string", 
-                            "description": "対象ファシリティID"
-                        },
-                        "url": {
-                            "type": "string", 
-                            "description": "監視対象URL"
-                        },
-                        "interval": {
-                            "type": "integer", 
-                            "description": "チェック間隔（秒）", 
-                            "default": 300
-                        },
-                        "timeout": {
-                            "type": "integer", 
-                            "description": "タイムアウト（ミリ秒）", 
-                            "default": 10000
-                        },
-                        "owner_role_id": {
-                            "type": "string", 
-                            "description": "オーナーロールID",
-                            "default": "ADMINISTRATORS"
-                        }
-                    },
-                    "required": ["monitor_id", "monitor_name", "facility_id", "url"]
-                }
-            ),
-            Tool(
-                name="add_ping_monitor",
-                description="Hinemos 7.1にPing監視設定を追加（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "monitor_id": {
-                            "type": "string", 
-                            "description": "ユニークな監視ID"
-                        },
-                        "monitor_name": {
-                            "type": "string", 
-                            "description": "監視設定の表示名"
-                        },
-                        "facility_id": {
-                            "type": "string", 
-                            "description": "対象ファシリティID"
-                        },
-                        "interval": {
-                            "type": "integer", 
-                            "description": "チェック間隔（秒）", 
-                            "default": 300
-                        },
-                        "run_count": {
-                            "type": "integer", 
-                            "description": "ping試行回数", 
-                            "default": 3
-                        },
-                        "timeout": {
-                            "type": "integer", 
-                            "description": "タイムアウト（ミリ秒）", 
-                            "default": 5000
-                        },
-                        "owner_role_id": {
-                            "type": "string", 
-                            "description": "オーナーロールID",
-                            "default": "ADMINISTRATORS"
-                        }
-                    },
-                    "required": ["monitor_id", "monitor_name", "facility_id"]
-                }
-            ),
-            Tool(
-                name="get_monitor_list",
-                description="Hinemos 7.1から監視設定リストを取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "owner_role_id": {
-                            "type": "string", 
-                            "description": "オーナーロールIDフィルター（オプション）"
-                        }
-                    }
-                }
-            ),
-            Tool(
-                name="delete_monitor",
-                description="Hinemos 7.1から監視設定を削除（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "monitor_ids": {
-                            "type": "array", 
-                            "items": {"type": "string"}, 
-                            "description": "削除する監視IDのリスト"
-                        }
-                    },
-                    "required": ["monitor_ids"]
-                }
-            ),
-            Tool(
-                name="get_event_list",
-                description="Hinemos 7.1からイベントリストを取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "facility_id": {
-                            "type": "string", 
-                            "description": "ファシリティIDフィルター（オプション）"
-                        },
-                        "priority": {
-                            "type": "integer", 
-                            "description": "優先度フィルター（オプション）"
-                        },
-                        "start_date": {
-                            "type": "string", 
-                            "description": "開始日フィルター（YYYY-MM-DD形式、オプション）"
-                        },
-                        "end_date": {
-                            "type": "string", 
-                            "description": "終了日フィルター（YYYY-MM-DD形式、オプション）"
-                        },
-                        "owner_role_id": {
-                            "type": "string", 
-                            "description": "オーナーロールIDフィルター（オプション）"
-                        },
-                        "limit": {
-                            "type": "integer", 
-                            "description": "取得件数の上限（デフォルト: 100）",
-                            "default": 100
-                        }
-                    }
-                }
-            ),
-            Tool(
-                name="get_scope_list",
-                description="Hinemos 7.1からスコープリストを取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "owner_role_id": {
-                            "type": "string", 
-                            "description": "オーナーロールIDフィルター（オプション）"
-                        }
-                    }
-                }
-            ),
-            Tool(
-                name="get_calendar_list",
-                description="Hinemos 7.1からカレンダー一覧を取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "owner_role_id": {
-                            "type": "string",
-                            "description": "オーナーロールIDフィルター（オプション）"
-                        }
-                    }
-                }
-            ),
-            Tool(
-                name="get_calendar",
-                description="Hinemos 7.1からカレンダー情報を取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_id": {
-                            "type": "string",
-                            "description": "カレンダーID"
-                        }
-                    },
-                    "required": ["calendar_id"]
-                }
-            ),
-            Tool(
-                name="add_calendar",
-                description="Hinemos 7.1にカレンダーを追加（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_info": {
-                            "type": "object",
-                            "description": "追加するカレンダー情報"
-                        }
-                    },
-                    "required": ["calendar_info"]
-                }
-            ),
-            Tool(
-                name="modify_calendar",
-                description="Hinemos 7.1のカレンダーを更新（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_id": {
-                            "type": "string",
-                            "description": "カレンダーID"
-                        },
-                        "calendar_info": {
-                            "type": "object",
-                            "description": "更新するカレンダー情報"
-                        }
-                    },
-                    "required": ["calendar_id", "calendar_info"]
-                }
-            ),
-            Tool(
-                name="delete_calendar",
-                description="Hinemos 7.1からカレンダーを削除（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_ids": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "削除するカレンダーIDリスト"
-                        }
-                    },
-                    "required": ["calendar_ids"]
-                }
-            ),
-            Tool(
-                name="get_calendar_month",
-                description="Hinemos 7.1からカレンダー月別稼働状態を取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_id": {
-                            "type": "string",
-                            "description": "カレンダーID"
-                        },
-                        "year": {
-                            "type": "integer",
-                            "description": "年"
-                        },
-                        "month": {
-                            "type": "integer",
-                            "description": "月"
-                        }
-                    },
-                    "required": ["calendar_id", "year", "month"]
-                }
-            ),
-            Tool(
-                name="get_calendar_week",
-                description="Hinemos 7.1からカレンダー週情報を取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_id": {
-                            "type": "string",
-                            "description": "カレンダーID"
-                        },
-                        "year": {
-                            "type": "integer",
-                            "description": "年"
-                        },
-                        "month": {
-                            "type": "integer",
-                            "description": "月"
-                        },
-                        "day": {
-                            "type": "integer",
-                            "description": "日"
-                        }
-                    },
-                    "required": ["calendar_id", "year", "month", "day"]
-                }
-            ),
-            Tool(
-                name="get_calendar_pattern_list",
-                description="Hinemos 7.1からカレンダパターン一覧を取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "owner_role_id": {
-                            "type": "string",
-                            "description": "オーナーロールIDフィルター（オプション）"
-                        }
-                    }
-                }
-            ),
-            Tool(
-                name="get_calendar_pattern",
-                description="Hinemos 7.1からカレンダパターン情報を取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_pattern_id": {
-                            "type": "string",
-                            "description": "カレンダパターンID"
-                        }
-                    },
-                    "required": ["calendar_pattern_id"]
-                }
-            ),
-            Tool(
-                name="add_calendar_pattern",
-                description="Hinemos 7.1にカレンダパターンを追加（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "pattern_info": {
-                            "type": "object",
-                            "description": "追加するカレンダパターン情報"
-                        }
-                    },
-                    "required": ["pattern_info"]
-                }
-            ),
-            Tool(
-                name="modify_calendar_pattern",
-                description="Hinemos 7.1のカレンダパターンを更新（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_pattern_id": {
-                            "type": "string",
-                            "description": "カレンダパターンID"
-                        },
-                        "pattern_info": {
-                            "type": "object",
-                            "description": "更新するカレンダパターン情報"
-                        }
-                    },
-                    "required": ["calendar_pattern_id", "pattern_info"]
-                }
-            ),
-            Tool(
-                name="delete_calendar_pattern",
-                description="Hinemos 7.1からカレンダパターンを削除（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "calendar_pattern_ids": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "削除するカレンダパターンIDリスト"
-                        }
-                    },
-                    "required": ["calendar_pattern_ids"]
-                }
-            ),
-            Tool(
-                name="get_collect_id",
-                description="Hinemos 7.1から収集IDリストを取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "monitor_id": {"type": "string", "description": "監視設定ID"},
-                        "item_name": {"type": "string", "description": "収集項目コード"},
-                        "display_name": {"type": "string", "description": "表示名"},
-                        "facility_ids": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "ファシリティIDリスト"
-                        },
-                        "size": {"type": "integer", "description": "取得件数（オプション）"}
-                    },
-                    "required": ["monitor_id", "item_name", "display_name", "facility_ids"]
-                }
-            ),
-            Tool(
-                name="get_collect_data",
-                description="Hinemos 7.1から収集データを取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "id_list": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "収集IDリスト"
-                        },
-                        "summary_type": {"type": "string", "description": "サマリタイプ"},
-                        "from_time": {"type": "string", "description": "取得開始日時 (yyyy-MM-dd HH:mm:ss)"},
-                        "to_time": {"type": "string", "description": "取得終了日時 (yyyy-MM-dd HH:mm:ss)"},
-                        "size": {"type": "integer", "description": "取得件数（オプション）"}
-                    },
-                    "required": ["id_list", "summary_type", "from_time", "to_time"]
-                }
-            ),
-            Tool(
-                name="get_item_code_list",
-                description="Hinemos 7.1から収集項目コードリストを取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "facility_ids": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "ファシリティIDリスト"
-                        },
-                        "size": {"type": "integer", "description": "取得件数（オプション）"}
-                    },
-                    "required": ["facility_ids"]
-                }
-            ),
-            Tool(
-                name="get_collect_item_code_master_list",
-                description="Hinemos 7.1から収集項目コードマスタ一覧を取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {}
-                }
-            ),
-            Tool(
-                name="get_collect_key_map_for_analytics",
-                description="Hinemos 7.1から収集値キーの一覧を取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "facility_id": {"type": "string", "description": "ファシリティID"},
-                        "owner_role_id": {"type": "string", "description": "オーナーロールID"}
-                    },
-                    "required": ["facility_id", "owner_role_id"]
-                }
-            ),
-            Tool(
-                name="get_available_collector_item_list",
-                description="Hinemos 7.1から収集可能な項目リストを取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "facility_id": {"type": "string", "description": "ファシリティID"}
-                    },
-                    "required": ["facility_id"]
-                }
-            ),
-            Tool(
-                name="get_collect_master_info",
-                description="Hinemos 7.1から収集マスタ情報を一括取得（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {}
-                }
-            ),
-            Tool(
-                name="add_collect_setting",
-                description="Hinemos 7.1に収集設定を追加（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "collect_info": {
-                            "type": "object",
-                            "description": "追加する収集設定情報"
-                        }
-                    },
-                    "required": ["collect_info"]
-                }
-            ),
-            Tool(
-                name="modify_collect_setting",
-                description="Hinemos 7.1の収集設定を更新（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "collect_id": {"type": "string", "description": "収集設定ID"},
-                        "collect_info": {
-                            "type": "object",
-                            "description": "更新する収集設定情報"
-                        }
-                    },
-                    "required": ["collect_id", "collect_info"]
-                }
-            ),
-            Tool(
-                name="delete_collect_setting",
-                description="Hinemos 7.1から収集設定を削除（REST API）",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "collect_ids": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "削除する収集設定IDリスト"
-                        }
-                    },
-                    "required": ["collect_ids"]
-                }
-            )            
-        ]
-        
-        logger.info(f"Created {len(tools)} tools")
-        
-        # Try different ways to construct ListToolsResult
-        try:
-            # # Method 1: Basic construction
-            # result = ListToolsResult(tools=tools)
-            # logger.info("Method 1: Basic ListToolsResult construction succeeded")
-            return tools
-        except Exception as e1:
-            logger.warning(f"Method 1 failed: {e1}")
-            
-            try:
-                # Method 2: With explicit parameters inspection
-                import inspect
-                sig = inspect.signature(ListToolsResult.__init__)
-                logger.info(f"ListToolsResult signature: {sig}")
-                
-                # Try with all possible parameters
-                result = ListToolsResult(tools=tools, nextCursor=None)
-                logger.info("Method 2: ListToolsResult with nextCursor succeeded")
-                return result
-            except Exception as e2:
-                logger.warning(f"Method 2 failed: {e2}")
-                
-                try:
-                    # Method 3: Positional arguments
-                    result = ListToolsResult(tools)
-                    logger.info("Method 3: Positional arguments succeeded")
-                    return result
-                except Exception as e3:
-                    logger.warning(f"Method 3 failed: {e3}")
-                    
-                    # Method 4: Create using class attributes
-                    result = ListToolsResult.__new__(ListToolsResult)
-                    result.tools = tools
-                    logger.info("Method 4: Manual attribute setting")
-                    return result
-                    
-    except Exception as e:
-        logger.error(f"All methods failed in handle_list_tools: {e}", exc_info=True)
-        
-        # Last resort: try creating the simplest possible result
-        try:
-            minimal_tool = Tool(
-                name="test_connection",
-                description="Test",
-                inputSchema={"type": "object", "properties": {}}
-            )
-            return ListToolsResult(tools=[minimal_tool])
-        except Exception as final_e:
-            logger.error(f"Even minimal approach failed: {final_e}")
-            raise
+    # First, let's try to understand what ListToolsResult expects
+    logger.info("Inspecting ListToolsResult...")
+    logger.info(f"ListToolsResult annotations: {getattr(ListToolsResult, '__annotations__', 'none')}")
+    
+    # Create tools for Hinemos 7.1 REST API
+    tools = []
+    extention_tools = get_all_tools()
+    tools.extend(extention_tools)
+    return tools
 
 @server.call_tool()
 async def handle_call_tool(name: str, arguments: dict) -> List[TextContent]:
-    """Handle tool calls"""
-    logger.info(f"Tool called: {name} with arguments: {arguments}")
-    
     global hinemos_manager
-    
-    # Initialize manager if not available
     if hinemos_manager is None:
-        logger.warning("Hinemos manager not initialized, using mock manager")
-        hinemos_manager = MockHinemosManager()
-    
+        # ...モックやエラー処理...
+        pass
     try:
-        result = None
-        
-        if name == "test_connection":
-            logger.info("Testing connection")
-            result = await hinemos_manager.test_connection()
-            
-        elif name == "get_node_list":
-            logger.info("Executing get_node_list")
-            result = await hinemos_manager.get_node_list(**arguments)
-            
-        elif name == "add_node":
-            logger.info("Executing add_node")
-            result = await hinemos_manager.add_node(**arguments)
-            
-        elif name == "delete_node":
-            logger.info("Executing delete_node")
-            result = await hinemos_manager.delete_node(**arguments)
-            
-        elif name == "add_http_monitor":
-            logger.info("Executing add_http_monitor")
-            result = await hinemos_manager.add_http_monitor(**arguments)
-            
-        elif name == "add_ping_monitor":
-            logger.info("Executing add_ping_monitor")
-            result = await hinemos_manager.add_ping_monitor(**arguments)
-            
-        elif name == "get_monitor_list":
-            logger.info("Executing get_monitor_list")
-            result = await hinemos_manager.get_monitor_list(**arguments)
-            
-        elif name == "delete_monitor":
-            logger.info("Executing delete_monitor")
-            result = await hinemos_manager.delete_monitor(**arguments)
-            
-        elif name == "get_event_list":
-            logger.info("Executing get_event_list")
-            result = await hinemos_manager.get_event_list(**arguments)
-            
-        elif name == "get_scope_list":
-            logger.info("Executing get_scope_list")
-            result = await hinemos_manager.get_scope_list(**arguments)
-            
-        elif name == "get_calendar_list":
-            logger.info("Executing get_calendar_list")
-            result = await hinemos_manager.get_calendar_list(**arguments)
-
-        elif name == "get_calendar":
-            logger.info("Executing get_calendar")
-            result = await hinemos_manager.get_calendar(**arguments)
-
-        elif name == "add_calendar":
-            logger.info("Executing add_calendar")
-            result = await hinemos_manager.add_calendar(**arguments)
-
-        elif name == "modify_calendar":
-            logger.info("Executing modify_calendar")
-            result = await hinemos_manager.modify_calendar(**arguments)
-
-        elif name == "delete_calendar":
-            logger.info("Executing delete_calendar")
-            result = await hinemos_manager.delete_calendar(**arguments)
-
-        elif name == "get_calendar_month":
-            logger.info("Executing get_calendar_month")
-            result = await hinemos_manager.get_calendar_month(**arguments)
-
-        elif name == "get_calendar_week":
-            logger.info("Executing get_calendar_week")
-            result = await hinemos_manager.get_calendar_week(**arguments)
-
-        elif name == "get_calendar_pattern_list":
-            logger.info("Executing get_calendar_pattern_list")
-            result = await hinemos_manager.get_calendar_pattern_list(**arguments)
-
-        elif name == "get_calendar_pattern":
-            logger.info("Executing get_calendar_pattern")
-            result = await hinemos_manager.get_calendar_pattern(**arguments)
-
-        elif name == "add_calendar_pattern":
-            logger.info("Executing add_calendar_pattern")
-            result = await hinemos_manager.add_calendar_pattern(**arguments)
-
-        elif name == "modify_calendar_pattern":
-            logger.info("Executing modify_calendar_pattern")
-            result = await hinemos_manager.modify_calendar_pattern(**arguments)
-
-        elif name == "delete_calendar_pattern":
-            logger.info("Executing delete_calendar_pattern")
-            result = await hinemos_manager.delete_calendar_pattern(**arguments)
-
-        elif name == "get_collect_id":
-            logger.info("Executing get_collect_id")
-            result = await hinemos_manager.get_collect_id(**arguments)
-
-        elif name == "get_collect_data":
-            logger.info("Executing get_collect_data")
-            result = await hinemos_manager.get_collect_data(**arguments)
-
-        elif name == "get_item_code_list":
-            logger.info("Executing get_item_code_list")
-            result = await hinemos_manager.get_item_code_list(**arguments)
-
-        elif name == "get_collect_item_code_master_list":
-            logger.info("Executing get_collect_item_code_master_list")
-            result = await hinemos_manager.get_collect_item_code_master_list(**arguments)
-
-        elif name == "get_collect_key_map_for_analytics":
-            logger.info("Executing get_collect_key_map_for_analytics")
-            result = await hinemos_manager.get_collect_key_map_for_analytics(**arguments)
-
-        elif name == "get_available_collector_item_list":
-            logger.info("Executing get_available_collector_item_list")
-            result = await hinemos_manager.get_available_collector_item_list(**arguments)
-
-        elif name == "get_collect_master_info":
-            logger.info("Executing get_collect_master_info")
-            result = await hinemos_manager.get_collect_master_info(**arguments)
-
-        elif name == "add_collect_setting":
-            logger.info("Executing add_collect_setting")
-            result = await hinemos_manager.add_collect_setting(**arguments)
-
-        elif name == "modify_collect_setting":
-            logger.info("Executing modify_collect_setting")
-            result = await hinemos_manager.modify_collect_setting(**arguments)
-
-        elif name == "delete_collect_setting":
-            logger.info("Executing delete_collect_setting")
-            result = await hinemos_manager.delete_collect_setting(**arguments)
-
-        else:
-            logger.error(f"Unknown tool: {name}")
-            available_tools = ["test_connection", "get_node_list", "add_node", "delete_node", 
-                             "add_http_monitor", "add_ping_monitor", "get_monitor_list", 
-                             "delete_monitor", "get_event_list", "get_scope_list"]
-            return [TextContent(
-                type="text", 
-                text=f"未知のツール: {name}\n\n利用可能なツール: {', '.join(available_tools)}"
-            )]
-        
-        # Format result
+        result = await dispatch_tool(name, hinemos_manager, arguments)
+        if result is None:
+            return [TextContent(type="text", text=f"未知のツール: {name}")]
         import json
-        result_text = json.dumps(result, indent=2, ensure_ascii=False)
-        logger.info(f"Tool {name} completed successfully")
-        
-        return [TextContent(
-            type="text", 
-            text=f"**{name}** が正常に完了しました:\n\n```json\n{result_text}\n```"
-        )]
-        
+        return [TextContent(type="text", text=f"**{name}**:\n```json\n{json.dumps(result, indent=2, ensure_ascii=False)}\n```")]
     except Exception as e:
-        logger.error(f"Error in tool {name}: {str(e)}", exc_info=True)
-        return [TextContent(
-            type="text", 
-            text=f"**{name}** でエラーが発生しました: {str(e)}"
-        )]
+        return [TextContent(type="text", text=f"**{name}** でエラー: {str(e)}")]
+
 
 async def main():
     """Main entry point"""

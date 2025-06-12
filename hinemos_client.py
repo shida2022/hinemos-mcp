@@ -904,79 +904,192 @@ class HinemosClient:
         params = {"collectIds": ",".join(collect_ids)}
         return self._make_request('DELETE', 'CollectRestEndpoints/collect/setting', params=params)
 
-# Usage example
-if __name__ == "__main__":
-    # Configure logging
-    logging.basicConfig(level=logging.INFO)
-    
-    # Initialize client (base_url will be taken from env if not provided)
-    client = HinemosClient()
-    
-    try:
-        # Login (user/pass will be taken from env if not provided)
-        login_response = client.login()
-        print("Login successful:", json.dumps(login_response, indent=2, ensure_ascii=False))
-        
-        # Get facility tree
-        facility_tree = client.get_facility_tree()
-        print("Facility tree:", json.dumps(facility_tree, indent=2, ensure_ascii=False))
+    # --- JobRestEndpoints対応 Hinemos REST APIクライアントメソッド ---
 
-        # Get exec target facility tree (例: facility_id="root")
-        exec_tree = client.get_exec_target_facility_tree("root")
-        print("Exec target facility tree:", json.dumps(exec_tree, indent=2, ensure_ascii=False))
+    def get_job_tree(self, owner_role_id: Optional[str] = None, tree_only: Optional[bool] = None, locale: Optional[str] = None) -> Dict[str, Any]:
+        """
+        ジョブツリー取得API (/jobmanagement/jobTree)
+        Args:
+            owner_role_id: オーナーロールID (任意)
+            tree_only: ツリー構造のみ取得するか (任意)
+            locale: ロケール (任意)
+        Returns:
+            ジョブツリー情報
+        """
+        params = {}
+        if owner_role_id:
+            params["ownerRoleId"] = owner_role_id
+        if tree_only is not None:
+            params["treeOnly"] = str(tree_only).lower()
+        if locale:
+            params["locale"] = locale
+        return self._make_request('GET', 'jobmanagement/jobTree', params=params)
 
-        # Get node facility tree
-        node_facility_tree = client.get_node_facility_tree()
-        print("Node facility tree:", json.dumps(node_facility_tree, indent=2, ensure_ascii=False))
+    def get_job_detail(self, jobunit_id: str, job_id: str) -> Dict[str, Any]:
+        """
+        ジョブ詳細情報取得API (/jobmanagement/job/{jobunitId}/{jobId})
+        Args:
+            jobunit_id: ジョブユニットID
+            job_id: ジョブID
+        Returns:
+            ジョブ詳細情報
+        """
+        endpoint = f"jobmanagement/job/{jobunit_id}/{job_id}"
+        return self._make_request('GET', endpoint)
 
-        # Get node list
-        node_list = client.get_node_list()
-        print("Node list:", json.dumps(node_list, indent=2, ensure_ascii=False))
+    def run_job(self, jobunit_id: str, job_id: str, trigger_type: int = 1, trigger_info: str = "API実行", job_variable_list: Optional[list] = None) -> Dict[str, Any]:
+        """
+        ジョブ実行API (/jobmanagement/job/run)
+        Args:
+            jobunit_id: ジョブユニットID
+            job_id: ジョブID
+            trigger_type: トリガー種別 (デフォルト: 1)
+            trigger_info: トリガー情報 (デフォルト: "API実行")
+            job_variable_list: ジョブ変数リスト (例: [{"name": "PARAM1", "value": "value1"}])
+        Returns:
+            実行結果（セッションID等）
+        """
+        data = {
+            "jobunitId": jobunit_id,
+            "jobId": job_id,
+            "triggerType": trigger_type,
+            "triggerInfo": trigger_info
+        }
+        if job_variable_list is not None:
+            data["jobVariableList"] = job_variable_list
+        return self._make_request('POST', 'jobmanagement/job/run', json=data)
 
-        # Get node (例: facility_id="root")
-        node = client.get_node("TEST_LOCAL")
-        print("Node:", json.dumps(node, indent=2, ensure_ascii=False))
+    def get_job_history(self, owner_role_id: Optional[str] = None, from_date: Optional[str] = None, to_date: Optional[str] = None,
+                        jobunit_id: Optional[str] = None, job_id: Optional[str] = None, status: Optional[int] = None,
+                        limit: Optional[int] = None) -> Dict[str, Any]:
+        """
+        ジョブ履歴取得API (/jobmanagement/jobHistory)
+        Args:
+            owner_role_id: オーナーロールIDフィルタ (任意)
+            from_date: 開始日時(YYYY-MM-DD HH:MM:SS) (任意)
+            to_date: 終了日時(YYYY-MM-DD HH:MM:SS) (任意)
+            jobunit_id: ジョブユニットID (任意)
+            job_id: ジョブID (任意)
+            status: 実行状態 (任意)
+            limit: 取得件数上限 (任意)
+        Returns:
+            ジョブ履歴リスト
+        """
+        params = {}
+        if owner_role_id:
+            params["ownerRoleId"] = owner_role_id
+        if from_date:
+            params["fromDate"] = from_date
+        if to_date:
+            params["toDate"] = to_date
+        if jobunit_id:
+            params["jobunitId"] = jobunit_id
+        if job_id:
+            params["jobId"] = job_id
+        if status is not None:
+            params["status"] = str(status)
+        if limit is not None:
+            params["limit"] = str(limit)
+        return self._make_request('GET', 'jobmanagement/jobHistory', params=params)
 
-        # Get node full (例: facility_id="root")
-        node_full = client.get_node_full("TEST_LOCAL")
-        print("Node full:", json.dumps(node_full, indent=2, ensure_ascii=False))
+    def operate_job(self, session_id: str, jobunit_id: str, job_id: str, facility_id: str, control: int, end_value: Optional[int] = None) -> Dict[str, Any]:
+        """
+        ジョブ操作API (/jobmanagement/job/operation)
+        Args:
+            session_id: セッションID
+            jobunit_id: ジョブユニットID
+            job_id: ジョブID
+            facility_id: ファシリティID
+            control: 操作種別 (1:開始, 2:停止, 3:強制停止, 4:中断, 5:再実行)
+            end_value: 終了値 (任意)
+        Returns:
+            操作結果
+        """
+        data = {
+            "sessionId": session_id,
+            "jobunitId": jobunit_id,
+            "jobId": job_id,
+            "facilityId": facility_id,
+            "control": control
+        }
+        if end_value is not None:
+            data["endValue"] = end_value
+        return self._make_request('POST', 'jobmanagement/job/operation', json=data)
 
-        # Get facility list
-        facility_list = client.get_facility_list()
-        print("Facility list:", json.dumps(facility_list, indent=2, ensure_ascii=False))
+    def create_job(self, job_info: dict) -> Dict[str, Any]:
+        """
+        ジョブ作成API (/jobmanagement/job)
+        Args:
+            job_info: ジョブ情報(dict)
+        Returns:
+            作成結果
+        """
+        data = {"jobInfo": job_info}
+        return self._make_request('POST', 'jobmanagement/job', json=data)
 
-        # 最初のfacilityIdを使ってノード情報を取得
-        first_facility_id = None
-        if facility_list and "facilityList" in facility_list and facility_list["facilityList"]:
-            first_facility_id = facility_list["facilityList"][0].get("facilityId")
-            print(f"First facilityId: {first_facility_id}")
+    def update_job(self, jobunit_id: str, job_id: str, job_info: dict) -> Dict[str, Any]:
+        """
+        ジョブ更新API (/jobmanagement/job/{jobunitId}/{jobId})
+        Args:
+            jobunit_id: ジョブユニットID
+            job_id: ジョブID
+            job_info: ジョブ情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"jobmanagement/job/{jobunit_id}/{job_id}"
+        data = {"jobInfo": job_info}
+        return self._make_request('PUT', endpoint, json=data)
 
-        if first_facility_id:
-            node = client.get_node("TEST_LOCAL")
-            print("Node:", json.dumps(node, indent=2, ensure_ascii=False))
+    def delete_job(self, jobunit_id: str, job_id: str) -> Dict[str, Any]:
+        """
+        ジョブ削除API (/jobmanagement/job/{jobunitId}/{jobId})
+        Args:
+            jobunit_id: ジョブユニットID
+            job_id: ジョブID
+        Returns:
+            削除結果
+        """
+        endpoint = f"jobmanagement/job/{jobunit_id}/{job_id}"
+        return self._make_request('DELETE', endpoint)
 
-            node_full = client.get_node_full("TEST_LOCAL")
-            print("Node full:", json.dumps(node_full, indent=2, ensure_ascii=False))
+    def get_job_kick_list(self) -> Dict[str, Any]:
+        """
+        ジョブキック一覧取得API (/jobmanagement/jobKick)
+        Returns:
+            ジョブキック一覧
+        """
+        return self._make_request('GET', 'jobmanagement/jobKick')
 
-            scope = client.get_scope("TEST_LOCAL")
-            print("Scope:", json.dumps(scope, indent=2, ensure_ascii=False))
-        else:
-            print("No facilityId found in facility list.")
+    def create_job_kick(self, job_kick_info: dict) -> Dict[str, Any]:
+        """
+        ジョブキック作成API (/jobmanagement/jobKick)
+        Args:
+            job_kick_info: ジョブキック情報(dict)
+        Returns:
+            作成結果
+        """
+        return self._make_request('POST', 'jobmanagement/jobKick', json=job_kick_info)
 
-        # Get scope default
-        scope_default = client.get_scope_default()
-        print("Scope default:", json.dumps(scope_default, indent=2, ensure_ascii=False))
+    def update_job_kick(self, job_kick_id: str, job_kick_info: dict) -> Dict[str, Any]:
+        """
+        ジョブキック更新API (/jobmanagement/jobKick/{jobKickId})
+        Args:
+            job_kick_id: ジョブキックID
+            job_kick_info: ジョブキック情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"jobmanagement/jobKick/{job_kick_id}"
+        return self._make_request('PUT', endpoint, json=job_kick_info)
 
-        # Get platform list
-        platform_list = client.get_platform_list()
-        print("Platform list:", json.dumps(platform_list, indent=2, ensure_ascii=False))
-
-        # Get subplatform list
-        subplatform_list = client.get_subplatform_list()
-        print("Subplatform list:", json.dumps(subplatform_list, indent=2, ensure_ascii=False))
-
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        # Logout
-        client.logout()
+    def delete_job_kick(self, job_kick_id: str) -> Dict[str, Any]:
+        """
+        ジョブキック削除API (/jobmanagement/jobKick/{jobKickId})
+        Args:
+            job_kick_id: ジョブキックID
+        Returns:
+            削除結果
+        """
+        endpoint = f"jobmanagement/jobKick/{job_kick_id}"
+        return self._make_request('DELETE', endpoint)
