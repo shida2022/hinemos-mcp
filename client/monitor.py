@@ -417,3 +417,248 @@ class MonitorClient(BaseClient):
         if owner_role_id:
             params["ownerRoleId"] = owner_role_id
         return self._make_request('GET', endpoint, params=params)
+
+    def add_performance_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        リソース監視設定追加API (/monitorsetting/performance)
+        Args:
+            monitor_info: リソース監視設定情報(dict)。例はAPI仕様書参照
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/performance', json=monitor_info)
+
+    def modify_performance_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        リソース監視設定更新API (/monitorsetting/performance/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: リソース監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/performance/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def get_performance_list(self, monitor_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        リソース監視設定一覧取得API (/monitorsetting/performance)
+        Args:
+            monitor_id: 監視設定ID（オプション）
+        Returns:
+            リソース監視設定一覧（配列）
+        """
+        params = {}
+        if monitor_id:
+            params["monitorId"] = monitor_id
+        return self._make_request('GET', 'MonitorsettingRestEndpoints/monitorsetting/performance', params=params)
+
+    def add_snmp_numeric_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        SNMP監視（数値）設定追加API (/monitorsetting/snmpNumeric)
+        Args:
+            monitor_info: SNMP数値監視設定情報(dict)。例はAPI仕様書参照
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/snmpNumeric', json=monitor_info)
+
+    def modify_snmp_numeric_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        SNMP監視（数値）設定更新API (/monitorsetting/snmpNumeric/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: SNMP数値監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/snmpNumeric/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def get_snmp_numeric_list(self, monitor_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        SNMP監視（数値）設定一覧取得API (/monitorsetting/snmpNumeric)
+        Args:
+            monitor_id: 監視設定ID（オプション）
+        Returns:
+            SNMP数値監視設定一覧（配列）
+        """
+        params = {}
+        if monitor_id:
+            params["monitorId"] = monitor_id
+        return self._make_request('GET', 'MonitorsettingRestEndpoints/monitorsetting/snmpNumeric', params=params)
+
+    def add_snmp_string_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        SNMP監視（文字列）設定追加API (/monitorsetting/snmpString)
+        Args:
+            monitor_info: SNMP文字列監視設定情報(dict)。例はAPI仕様書参照
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/snmpString', json=monitor_info)
+
+    def modify_snmp_string_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        SNMP監視（文字列）設定更新API (/monitorsetting/snmpString/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: SNMP文字列監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/snmpString/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def get_snmp_string_list(self, monitor_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        SNMP監視（文字列）設定一覧取得API (/monitorsetting/snmpString)
+        Args:
+            monitor_id: 監視設定ID（オプション）
+        Returns:
+            SNMP文字列監視設定一覧（配列）
+        """
+        params = {}
+        if monitor_id:
+            params["monitorId"] = monitor_id
+        return self._make_request('GET', 'MonitorsettingRestEndpoints/monitorsetting/snmpString', params=params)
+
+    def add_process_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        プロセス監視設定追加API (/monitorsetting/process)
+        Args:
+            monitor_info: プロセス監視設定情報(dict)。例はAPI仕様書参照
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/process', json=monitor_info)
+
+    def modify_process_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        プロセス監視設定更新API (/monitorsetting/process/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: プロセス監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/process/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def get_process_list(self, monitor_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        プロセス監視設定一覧取得API (/monitorsetting/process)
+        Args:
+            monitor_id: 監視設定ID（オプション）
+        Returns:
+            プロセス監視設定一覧（配列）
+        """
+        params = {}
+        if monitor_id:
+            params["monitorId"] = monitor_id
+        return self._make_request('GET', 'MonitorsettingRestEndpoints/monitorsetting/process', params=params)
+
+    def add_http_numeric_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        HTTP監視（数値）設定追加API (/monitorsetting/httpNumeric)
+        Args:
+            monitor_info: HTTP数値監視設定情報(dict)。例はAPI仕様書参照
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/httpNumeric', json=monitor_info)
+
+    def modify_http_numeric_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        HTTP監視（数値）設定更新API (/monitorsetting/httpNumeric/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: HTTP数値監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/httpNumeric/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def get_http_numeric_list(self, monitor_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        HTTP監視（数値）設定一覧取得API (/monitorsetting/httpNumeric)
+        Args:
+            monitor_id: 監視設定ID（オプション）
+        Returns:
+            HTTP数値監視設定一覧（配列）
+        """
+        params = {}
+        if monitor_id:
+            params["monitorId"] = monitor_id
+        return self._make_request('GET', 'MonitorsettingRestEndpoints/monitorsetting/httpNumeric', params=params)
+
+    def add_http_string_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        HTTP監視（文字列）設定追加API (/monitorsetting/httpString)
+        Args:
+            monitor_info: HTTP文字列監視設定情報(dict)。例はAPI仕様書参照
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/httpString', json=monitor_info)
+
+    def modify_http_string_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        HTTP監視（文字列）設定更新API (/monitorsetting/httpString/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: HTTP文字列監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/httpString/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def get_http_string_list(self, monitor_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        HTTP監視（文字列）設定一覧取得API (/monitorsetting/httpString)
+        Args:
+            monitor_id: 監視設定ID（オプション）
+        Returns:
+            HTTP文字列監視設定一覧（配列）
+        """
+        params = {}
+        if monitor_id:
+            params["monitorId"] = monitor_id
+        return self._make_request('GET', 'MonitorsettingRestEndpoints/monitorsetting/httpString', params=params)
+
+    def add_http_scenario_monitor(self, monitor_info: dict) -> Dict[str, Any]:
+        """
+        HTTPシナリオ監視設定追加API (/monitorsetting/httpScenario)
+        Args:
+            monitor_info: HTTPシナリオ監視設定情報(dict)。例はAPI仕様書参照
+        Returns:
+            追加結果
+        """
+        return self._make_request('POST', 'MonitorsettingRestEndpoints/monitorsetting/httpScenario', json=monitor_info)
+
+    def modify_http_scenario_monitor(self, monitor_id: str, monitor_info: dict) -> Dict[str, Any]:
+        """
+        HTTPシナリオ監視設定更新API (/monitorsetting/httpScenario/{monitorId})
+        Args:
+            monitor_id: 監視設定ID
+            monitor_info: HTTPシナリオ監視設定情報(dict)
+        Returns:
+            更新結果
+        """
+        endpoint = f"MonitorsettingRestEndpoints/monitorsetting/httpScenario/{monitor_id}"
+        return self._make_request('PUT', endpoint, json=monitor_info)
+
+    def get_http_scenario_list(self, monitor_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        HTTPシナリオ監視設定一覧取得API (/monitorsetting/httpScenario)
+        Args:
+            monitor_id: 監視設定ID（オプション）
+        Returns:
+            HTTPシナリオ監視設定一覧（配列）
+        """
+        params = {}
+        if monitor_id:
+            params["monitorId"] = monitor_id
+        return self._make_request('GET', 'MonitorsettingRestEndpoints/monitorsetting/httpScenario', params=params)

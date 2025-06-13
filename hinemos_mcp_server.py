@@ -465,6 +465,155 @@ class HinemosSyncManager:
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.client.get_process_list, kwargs.get("monitor_id"))
 
+    # --- 監視結果API ---
+    async def event_search(self, filter, size=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_search,
+            filter,
+            size
+        )
+
+    async def scope_list(self, facility_id=None, status_flag=None, event_flag=None, order_flg=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.scope_list,
+            facility_id,
+            status_flag,
+            event_flag,
+            order_flg
+        )
+
+    async def status_search(self, filter, size=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.status_search,
+            filter,
+            size
+        )
+
+    async def status_delete(self, status_data_info_request_list):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.status_delete,
+            status_data_info_request_list
+        )
+
+    async def event_download(self, filter, selected_events=None, filename=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_download,
+            filter,
+            selected_events,
+            filename
+        )
+
+    async def event_detail_search(self, monitorId, monitorDetailId, pluginId, facilityId, outputDate):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_detail_search,
+            monitorId,
+            monitorDetailId,
+            pluginId,
+            facilityId,
+            outputDate
+        )
+
+    async def event_comment(self, monitorId, monitorDetailId, pluginId, facilityId, outputDate, comment, commentDate, commentUser):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_comment,
+            monitorId,
+            monitorDetailId,
+            pluginId,
+            facilityId,
+            outputDate,
+            comment,
+            commentDate,
+            commentUser
+        )
+
+    async def event_confirm(self, list, confirmType):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_confirm,
+            list,
+            confirmType
+        )
+
+    async def event_multiConfirm(self, confirmType, filter):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_multiConfirm,
+            confirmType,
+            filter
+        )
+
+    async def event_collectGraphFlg(self, list, collectGraphFlg):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_collectGraphFlg,
+            list,
+            collectGraphFlg
+        )
+
+    async def event_update(self, info):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_update,
+            info
+        )
+
+    async def eventCustomCommand_exec(self, commandNo, eventList):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.eventCustomCommand_exec,
+            commandNo,
+            eventList
+        )
+
+    async def eventCustomCommand_result(self, uuid):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.eventCustomCommand_result,
+            uuid
+        )
+
+    async def event_collectValid_mapKeyFacility(self, facilityIdList=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None,
+            self.client.event_collectValid_mapKeyFacility,
+            facilityIdList
+        )
+
     async def close(self):
         self.client.logout()
 
