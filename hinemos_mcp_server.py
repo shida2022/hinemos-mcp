@@ -62,6 +62,16 @@ class HinemosSyncManager:
                 "error": str(e),
                 "message": f"Hinemos REST API接続に失敗しました: {str(e)}"
             }
+        
+    async def get_facility_list(self, **kwargs) -> Dict[str, Any]:
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_facility_list, **kwargs)
+
+    async def get_facility_tree(self, **kwargs) -> Dict[str, Any]:
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_facility_tree, **kwargs)
 
     async def get_node_list(self, **kwargs) -> Dict[str, Any]:
         import asyncio
@@ -616,6 +626,462 @@ class HinemosSyncManager:
 
     async def close(self):
         self.client.logout()
+
+    # --- ジョブ管理API ---
+    async def get_job_tree_simple(self, ownerRoleId=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_job_tree_simple, ownerRoleId)
+
+    async def get_job_tree_full(self, ownerRoleId=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_job_tree_full, ownerRoleId)
+
+    async def get_job_info(self, jobunitId, jobId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_job_info, jobunitId, jobId)
+
+    async def get_job_info_bulk(self, jobList):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_job_info_bulk, jobList)
+
+    async def add_jobunit(self, jobunit, isClient=False):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_jobunit, jobunit, isClient)
+
+    async def modify_jobunit(self, jobunitId, jobunit, isClient=False):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_jobunit, jobunitId, jobunit, isClient)
+
+    async def delete_jobunit(self, jobunitId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_jobunit, jobunitId)
+
+    async def get_edit_lock(self, jobunitId, updateTime, forceFlag):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_edit_lock, jobunitId, updateTime, forceFlag)
+
+    async def check_edit_lock(self, jobunitId, editSession):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.check_edit_lock, jobunitId, editSession)
+
+    async def release_edit_lock(self, jobunitId, editSession):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.release_edit_lock, jobunitId, editSession)
+
+    async def add_jobnet(self, jobunitId, jobnet):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_jobnet, jobunitId, jobnet)
+
+    async def add_command_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_command_job, jobunitId, job)
+
+    async def add_file_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_file_job, jobunitId, job)
+
+    async def add_refer_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_refer_job, jobunitId, job)
+
+    async def add_monitor_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_monitor_job, jobunitId, job)
+
+    async def add_approval_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_approval_job, jobunitId, job)
+
+    async def add_joblinksend_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_joblinksend_job, jobunitId, job)
+
+    async def add_joblinkrcv_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_joblinkrcv_job, jobunitId, job)
+
+    async def add_filecheck_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_filecheck_job, jobunitId, job)
+
+    async def add_rpa_job(self, jobunitId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_rpa_job, jobunitId, job)
+
+    async def delete_job(self, jobunitId, jobId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_job, jobunitId, jobId)
+
+    async def run_job(self, jobunitId, jobId, runJobRequest):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.run_job, jobunitId, jobId, runJobRequest)
+
+    async def run_job_kick(self, jobKickId, runJobKickRequest):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.run_job_kick, jobKickId, runJobKickRequest)
+
+    async def session_job_operation(self, sessionId, jobunitId, jobId, operation):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.session_job_operation, sessionId, jobunitId, jobId, operation)
+
+    async def session_node_operation(self, sessionId, jobunitId, jobId, facilityId, operation):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.session_node_operation, sessionId, jobunitId, jobId, facilityId, operation)
+
+    async def get_session_job_detail(self, sessionId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_session_job_detail, sessionId)
+
+    async def get_session_node_detail(self, sessionId, jobunitId, jobId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_session_node_detail, sessionId, jobunitId, jobId)
+
+    async def get_session_file_detail(self, sessionId, jobunitId, jobId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_session_file_detail, sessionId, jobunitId, jobId)
+
+    async def get_session_job_jobInfo(self, sessionId, jobunitId, jobId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_session_job_jobInfo, sessionId, jobunitId, jobId)
+
+    async def get_session_job_allDetail(self, sessionId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_session_job_allDetail, sessionId)
+
+    async def history_search(self, size, filter):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.history_search, size, filter)
+
+    async def add_schedule(self, schedule):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_schedule, schedule)
+
+    async def add_filecheck(self, filecheck):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_filecheck, filecheck)
+
+    async def add_manual(self, manual):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_manual, manual)
+
+    async def add_joblinkrcv(self, joblinkrcv):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_joblinkrcv, joblinkrcv)
+
+    async def get_kick_list(self):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_kick_list)
+
+    async def kick_search(self, condition):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.kick_search, condition)
+
+    async def set_kick_valid(self, setStatus):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.set_kick_valid, setStatus)
+
+    async def delete_kick(self, jobkickIds):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_kick, jobkickIds)
+
+    async def session_approval_search(self, request):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.session_approval_search, request)
+
+    async def modify_approval_info(self, sessionId, jobunitId, jobId, info):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_approval_info, sessionId, jobunitId, jobId, info)
+
+    async def get_queue_list(self, roleId=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_queue_list, roleId)
+
+    async def get_queue_detail(self, queueId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_queue_detail, queueId)
+
+    async def add_queue(self, queue):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_queue, queue)
+
+    async def modify_queue(self, queueId, queue):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_queue, queueId, queue)
+
+    async def delete_queue(self, queueIds):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_queue, queueIds)
+
+    async def queue_activity_search(self, request):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.queue_activity_search, request)
+
+    async def queue_activity_detail(self, queueId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.queue_activity_detail, queueId)
+
+    async def get_joblinksend_setting_list(self, ownerRoleId=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_joblinksend_setting_list, ownerRoleId)
+
+    async def get_joblinksend_setting_detail(self, joblinkSendSettingId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_joblinksend_setting_detail, joblinkSendSettingId)
+
+    async def add_joblinksend_setting(self, setting):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.add_joblinksend_setting, setting)
+
+    async def modify_joblinksend_setting(self, joblinkSendSettingId, setting):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_joblinksend_setting, joblinkSendSettingId, setting)
+
+    async def delete_joblinksend_setting(self, joblinkSendSettingIds):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_joblinksend_setting, joblinkSendSettingIds)
+
+    async def regist_joblink_message(self, message):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.regist_joblink_message, message)
+
+    async def send_joblink_message_manual(self, message):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.send_joblink_message_manual, message)
+
+    async def joblink_message_search(self, request):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.joblink_message_search, request)
+
+    async def available_start_operation(self, sessionId, jobunitId, jobId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.available_start_operation, sessionId, jobunitId, jobId)
+
+    async def available_start_operation_node(self, sessionId, jobunitId, jobId, facilityId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.available_start_operation_node, sessionId, jobunitId, jobId, facilityId)
+
+    async def available_stop_operation(self, sessionId, jobunitId, jobId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.available_stop_operation, sessionId, jobunitId, jobId)
+
+    async def available_stop_operation_node(self, sessionId, jobunitId, jobId, facilityId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.available_stop_operation_node, sessionId, jobunitId, jobId, facilityId)
+
+    async def get_rpa_login_resolution(self):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_rpa_login_resolution)
+
+    async def get_rpa_screenshot(self, sessionId, jobunitId, jobId, facilityId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_rpa_screenshot, sessionId, jobunitId, jobId, facilityId)
+
+    async def get_rpa_screenshot_file(self, sessionId, jobunitId, jobId, facilityId, regDate):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_rpa_screenshot_file, sessionId, jobunitId, jobId, facilityId, regDate)
+
+    async def get_jobmap_icon_image_iconId(self, ownerRoleId=None):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_jobmap_icon_image_iconId, ownerRoleId)
+
+    async def delete_premakejobsession(self, jobkickId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_premakejobsession, jobkickId)
+
+    async def get_schedule_plan(self, plan):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_schedule_plan, plan)
+
+    async def get_job_referrer_queue(self, queueId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_job_referrer_queue, queueId)
+
+    async def queue_search(self, search):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.queue_search, search)
+
+    async def modify_jobnet(self, jobunitId, jobId, jobnet):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_jobnet, jobunitId, jobId, jobnet)
+
+    async def modify_command_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_command_job, jobunitId, jobId, job)
+
+    async def modify_file_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_file_job, jobunitId, jobId, job)
+
+    async def modify_refer_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_refer_job, jobunitId, jobId, job)
+
+    async def modify_monitor_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_monitor_job, jobunitId, jobId, job)
+
+    async def modify_approval_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_approval_job, jobunitId, jobId, job)
+
+    async def modify_joblinksend_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_joblinksend_job, jobunitId, jobId, job)
+
+    async def modify_joblinkrcv_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_joblinkrcv_job, jobunitId, jobId, job)
+
+    async def modify_filecheck_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_filecheck_job, jobunitId, jobId, job)
+
+    async def modify_rpa_job(self, jobunitId, jobId, job):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_rpa_job, jobunitId, jobId, job)
+
+    async def get_schedule_detail(self, jobKickId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_schedule_detail, jobKickId)
+
+    async def get_filecheck_detail(self, jobKickId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_filecheck_detail, jobKickId)
+
+    async def get_manual_detail(self, jobKickId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_manual_detail, jobKickId)
+
+    async def get_joblinkrcv_detail(self, jobKickId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_joblinkrcv_detail, jobKickId)
+
+    async def get_kick_detail(self, jobKickId):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.get_kick_detail, jobKickId)
+
+    async def modify_schedule(self, jobKickId, schedule):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_schedule, jobKickId, schedule)
+
+    async def modify_filecheck(self, jobKickId, filecheck):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_filecheck, jobKickId, filecheck)
+
+    async def modify_manual(self, jobKickId, manual):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_manual, jobKickId, manual)
+
+    async def modify_joblinkrcv(self, jobKickId, joblinkrcv):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.modify_joblinkrcv, jobKickId, joblinkrcv)
+
+    async def delete_schedule(self, jobkickIds):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_schedule, jobkickIds)
+
+    async def delete_filecheck(self, jobkickIds):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_filecheck, jobkickIds)
+
+    async def delete_manual(self, jobkickIds):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_manual, jobkickIds)
+
+    async def delete_joblinkrcv(self, jobkickIds):
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.client.delete_joblinkrcv, jobkickIds)
 
 # Global manager instance
 hinemos_manager = None
